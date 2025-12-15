@@ -11,15 +11,22 @@ return new class extends Migration
      */
     public function up(): void
     {
-    Schema::create('transactions', function (Blueprint $table) {
-        $table->id();
-        $table->foreignId('user_id')->constrained()->onDelete('cascade'); // Nasabah
-        $table->foreignId('admin_id')->constrained('users'); // Petugas
-        $table->foreignId('trash_type_id')->constrained();
-        $table->decimal('weight_kg', 8, 2);
-        $table->decimal('total_price', 15, 2);
-        $table->timestamps();
-    });
+        Schema::create('transactions', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            
+            // ADMIN ID BOLEH KOSONG (Karena nasabah yang input duluan)
+            $table->foreignId('admin_id')->nullable()->constrained('users'); 
+            
+            $table->foreignId('trash_type_id')->constrained();
+            $table->decimal('weight_kg', 8, 2);
+            $table->decimal('total_price', 15, 2); // Ini jadi "Estimasi Pendapatan"
+            
+            // KOLOM BARU: STATUS
+            $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
+            
+            $table->timestamps();
+        });
     }
 
     /**

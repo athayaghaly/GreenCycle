@@ -16,15 +16,14 @@
     <!-- 3. Load Tailwind & Alpine via Vite (Breeze Default) -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
-    <!-- KONFIGURASI WARNA MANUAL (Agar sesuai desain kita) -->
-    <!-- Kita override config tailwind breeze agar warna hijaunya sesuai prototype -->
+    <!-- KONFIGURASI WARNA MANUAL -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        primary: '#10b981', // Emerald 500 (Warna Utama)
+                        primary: '#10b981', // Emerald 500
                         primaryDark: '#047857', // Emerald 700
                         secondary: '#f59e0b', // Amber 500
                         bgLight: '#f3f4f6', // Gray 100
@@ -39,7 +38,7 @@
 </head>
 <body class="font-sans antialiased bg-bgLight text-slate-800">
     
-    <!-- WRAPPER UTAMA (Menggunakan Alpine.js x-data untuk mobile menu) -->
+    <!-- WRAPPER UTAMA -->
     <div x-data="{ sidebarOpen: false }" class="flex h-screen overflow-hidden">
 
         <!-- ==================== SIDEBAR (KIRI) ==================== -->
@@ -56,38 +55,58 @@
                 </button>
             </div>
 
-            <!-- Menu Navigation -->
+            <!-- ======================================================== -->
+            <!--   BAGIAN NAVIGASI (SUDAH DIBUNGKUS TRANSLATE)            -->
+            <!--   Perhatikan penggunaan {{ __('Kata Kunci') }}           -->
+            <!-- ======================================================== -->
             <nav class="flex-1 overflow-y-auto p-4 space-y-2">
-                <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Menu Utama</p>
                 
-                <!-- Link Dashboard -->
+                <!-- 1. MENU UMUM -->
+                <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">{{ __('Menu Utama') }}</p>
+                
                 <a href="{{ route('dashboard') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors {{ request()->routeIs('dashboard') ? 'bg-primary/10 text-primaryDark' : 'text-slate-600 hover:bg-gray-50' }}">
-                    <i class="fa-solid fa-chart-pie w-5"></i> Dashboard
+                    <i class="fa-solid fa-chart-pie w-5"></i> {{ __('Dashboard') }}
                 </a>
                 
-                <!-- Link Data Nasabah (Hanya contoh link) -->
-                <a href="#" class="flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-gray-50 hover:text-primaryDark rounded-xl font-medium transition-colors">
-                    <i class="fa-solid fa-users w-5"></i> Data Nasabah
-                </a>
+                <!-- 2. KHUSUS ADMIN -->
+                @if(Auth::user()->role === 'admin')
+                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mt-6 mb-2">{{ __('Admin Area') }}</p>
 
-                <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mt-6 mb-2">Transaksi</p>
+                    <!-- Menu Cek Laporan -->
+                    <a href="{{ route('transaction.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors {{ request()->routeIs('transaction.index') ? 'bg-primary/10 text-primaryDark' : 'text-slate-600 hover:bg-gray-50' }}">
+                        <i class="fa-solid fa-file-signature w-5"></i> {{ __('Check Request') }}
+                    </a>
 
-                <!-- Link Setor Sampah (Ini yang kita buat nanti) -->
-                <a href="{{ route('transaction.create') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors {{ request()->routeIs('transaction.*') ? 'bg-primary/10 text-primaryDark' : 'text-slate-600 hover:bg-gray-50' }}">
-                    <i class="fa-solid fa-scale-balanced w-5"></i> Setor Sampah
-                </a>
-                
-                <a href="#" class="flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-gray-50 hover:text-primaryDark rounded-xl font-medium transition-colors">
-                    <i class="fa-solid fa-clock-rotate-left w-5"></i> Riwayat
-                </a>
+                    <!-- Menu Kelola Jenis Sampah -->
+                    <a href="{{ route('trash-types.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors {{ request()->routeIs('trash-types.*') ? 'bg-primary/10 text-primaryDark' : 'text-slate-600 hover:bg-gray-50' }}">
+                        <i class="fa-solid fa-list w-5"></i> {{ __('Waste Types') }}
+                    </a>
+                @endif
+
+                <!-- 3. KHUSUS NASABAH -->
+                @if(Auth::user()->role === 'nasabah')
+                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mt-6 mb-2">{{ __('Menu Nasabah') }}</p>
+
+                    <!-- Menu Ajukan Setor Sampah -->
+                    <a href="{{ route('transaction.create') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors {{ request()->routeIs('transaction.create') ? 'bg-primary/10 text-primaryDark' : 'text-slate-600 hover:bg-gray-50' }}">
+                        <i class="fa-solid fa-plus-circle w-5"></i> {{ __('Submit Waste') }}
+                    </a>
+
+                    <!-- Menu Riwayat Saya -->
+                    <a href="{{ route('transaction.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors {{ request()->routeIs('transaction.index') ? 'bg-primary/10 text-primaryDark' : 'text-slate-600 hover:bg-gray-50' }}">
+                        <i class="fa-solid fa-clock-rotate-left w-5"></i> {{ __('My History') }}
+                    </a>
+                @endif
+
             </nav>
+            <!-- ======================================================== -->
 
             <!-- Logout Area -->
             <div class="p-4 border-t border-gray-100">
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
                     <button type="submit" class="flex items-center gap-3 w-full px-4 py-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors text-sm font-medium">
-                        <i class="fa-solid fa-right-from-bracket"></i> Keluar
+                        <i class="fa-solid fa-right-from-bracket"></i> {{ __('Logout') }}
                     </button>
                 </form>
             </div>
@@ -96,20 +115,27 @@
         <!-- ==================== KONTEN KANAN ==================== -->
         <div class="flex-1 flex flex-col h-full overflow-hidden relative">
             
-            <!-- TOPBAR (Mobile Toggle & User Profile) -->
+            <!-- TOPBAR -->
             <header class="bg-white/80 backdrop-blur-md border-b border-gray-200 px-4 py-3 flex justify-between items-center sticky top-0 z-30">
                 <!-- Tombol Menu Mobile -->
                 <button @click="sidebarOpen = true" class="md:hidden text-slate-600 p-2 rounded-lg hover:bg-gray-100">
                     <i class="fa-solid fa-bars text-xl"></i>
                 </button>
 
-                <!-- Judul Halaman (Desktop Only) -->
+                <!-- Judul Halaman -->
                 <h2 class="hidden md:block text-xl font-bold text-slate-700">
                     {{ isset($header) ? $header : 'Dashboard' }}
                 </h2>
 
-                <!-- User Profile -->
+                <!-- User Profile & Language -->
                 <div class="flex items-center gap-4">
+                    
+                    <!-- Language Switcher -->
+                    <div class="flex items-center gap-1 mr-2 bg-gray-100 p-1 rounded-lg">
+                        <a href="{{ route('switch.lang', 'id') }}" class="text-xs font-bold {{ app()->getLocale() == 'id' ? 'bg-white shadow text-primary' : 'text-gray-400 hover:text-gray-600' }} px-2 py-1 rounded transition-all">ID</a>
+                        <a href="{{ route('switch.lang', 'en') }}" class="text-xs font-bold {{ app()->getLocale() == 'en' ? 'bg-white shadow text-primary' : 'text-gray-400 hover:text-gray-600' }} px-2 py-1 rounded transition-all">EN</a>
+                    </div>
+
                     <div class="text-right hidden sm:block">
                         <p class="text-sm font-bold text-slate-700">{{ Auth::user()->name }}</p>
                         <p class="text-xs text-slate-500 capitalize">{{ Auth::user()->role }}</p>
@@ -120,14 +146,26 @@
                 </div>
             </header>
 
-            <!-- MAIN CONTENT AREA (SLOT) -->
-            <!-- Di sinilah konten form transaksi/dashboard akan muncul -->
+            <!-- MAIN CONTENT AREA -->
             <main class="flex-1 overflow-x-hidden overflow-y-auto bg-bgLight p-4 md:p-8">
-                <!-- Flash Message (Notifikasi Sukses/Gagal) -->
+                <!-- Flash Message -->
                 @if (session('success'))
-                    <div class="mb-6 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
-                        <strong class="font-bold">Berhasil!</strong>
-                        <span class="block sm:inline">{{ session('success') }}</span>
+                    <div class="mb-6 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative flex items-center gap-2" role="alert">
+                        <i class="fa-solid fa-circle-check"></i>
+                        <div>
+                            <strong class="font-bold">Berhasil!</strong>
+                            <span class="block sm:inline">{{ session('success') }}</span>
+                        </div>
+                    </div>
+                @endif
+                
+                @if (session('error'))
+                    <div class="mb-6 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative flex items-center gap-2" role="alert">
+                        <i class="fa-solid fa-circle-exclamation"></i>
+                        <div>
+                            <strong class="font-bold">Gagal!</strong>
+                            <span class="block sm:inline">{{ session('error') }}</span>
+                        </div>
                     </div>
                 @endif
 
